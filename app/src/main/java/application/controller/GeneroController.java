@@ -1,5 +1,7 @@
 package application.controller;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -35,5 +37,43 @@ public class GeneroController {
         ui.addAttribute("generos", generoRepo.findAll());
 
         return "/genero/list";
+    }
+
+    @RequestMapping("/update")
+    public String update(@RequestParam("id") long id, Model ui) {
+        Optional<Genero> result = generoRepo.findById(id);
+        if(result.isPresent()) {
+            ui.addAttribute("genero", result.get());
+            return "/genero/update";
+        }
+        return "redirect:/generos/list";
+    }
+
+    @RequestMapping(value = "/update", method = RequestMethod.POST)
+    public String update(@RequestParam("id") long id, @RequestParam("nome") String nome) {
+        Optional<Genero> result = generoRepo.findById(id);
+        if(result.isPresent()) {
+            result.get().setNome(nome);
+
+            generoRepo.save(result.get());
+        }
+
+        return "redirect:/generos/list";
+    }
+
+    @RequestMapping("/delete")
+    public String delete(@RequestParam("id") long id, Model ui) {
+        Optional<Genero> result = generoRepo.findById(id);
+        if(result.isPresent()) {
+            ui.addAttribute("genero", result.get());
+            return "/genero/delete";
+        }
+        return "redirect:/generos/list";
+    }
+
+    @RequestMapping(value = "/delete", method = RequestMethod.POST)
+    public String delete(@RequestParam("id") long id) {
+        generoRepo.deleteById(id);
+        return "redirect:/generos/list";
     }
 }
